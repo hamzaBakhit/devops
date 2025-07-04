@@ -1,0 +1,33 @@
+trigger:
+  - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - task: UseDotNet@2
+    inputs:
+      version: '6.x'
+
+  - script: |
+      git clone https://github.com/flutter/flutter.git -b stable
+      echo "$PWD/flutter/bin" >> $GITHUB_PATH
+    displayName: 'Install Flutter'
+
+  - script: flutter doctor -v
+    displayName: 'Check Flutter installation'
+
+  - script: flutter pub get
+    displayName: 'Get dependencies'
+
+  - script: flutter test
+    displayName: 'Run tests'
+
+  - script: flutter build apk --release
+    displayName: 'Build APK'
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: 'build/app/outputs/flutter-apk/app-release.apk'
+      ArtifactName: 'apk'
+      publishLocation: 'Container'
